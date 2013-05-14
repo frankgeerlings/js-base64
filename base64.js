@@ -11,12 +11,7 @@
 (function(global) {
     'use strict';
     if (global.Base64) return;
-    var version = "2.1.2";
-    // if node.js, we use Buffer
-    var buffer;
-    if (typeof module !== 'undefined' && module.exports) {
-        buffer = require('buffer').Buffer;
-    }
+    var version = "2.1.2-minimal-encode-only";
     // constants
     var b64chars
         = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
@@ -66,10 +61,7 @@
     var btoa = global.btoa || function(b) {
         return b.replace(/[\s\S]{1,3}/g, cb_encode);
     };
-    var _encode = buffer
-        ? function (u) { return (new buffer(u)).toString('base64') } 
-    : function (u) { return btoa(utob(u)) }
-    ;
+    var _encode = function (u) { return btoa(utob(u)) };
     var encode = function(u, urisafe) {
         return !urisafe 
             ? _encode(u)
@@ -81,29 +73,8 @@
     // export Base64
     global.Base64 = {
         VERSION: version,
-        atob: atob,
-        btoa: btoa,
-        fromBase64: decode,
-        toBase64: encode,
-        utob: utob,
         encode: encode,
         encodeURI: encodeURI
     };
-    // if ES5 is available, make Base64.extendString() available
-    if (typeof Object.defineProperty === 'function') {
-        var noEnum = function(v){
-            return {value:v,enumerable:false,writable:true,configurable:true};
-        };
-        global.Base64.extendString = function () {
-            Object.defineProperty(
-                String.prototype, 'toBase64', noEnum(function (urisafe) {
-                    return encode(this, urisafe)
-                }));
-            Object.defineProperty(
-                String.prototype, 'toBase64URI', noEnum(function () {
-                    return encode(this, true)
-                }));
-        };
-    }
     // that's it!
 })(this);
